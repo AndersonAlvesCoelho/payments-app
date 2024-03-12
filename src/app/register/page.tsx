@@ -2,14 +2,20 @@
 
 // IMPORTS
 import Link from "next/link";
-import { yupResolver } from "@hookform/resolvers/yup";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 
 // SERVICES
 import * as z from "zod";
+import app from "@/services/firebase";
+import { useToast } from "@/components/ui/use-toast";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
 
 // COMPONENTS
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Card,
   CardContent,
@@ -18,27 +24,27 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { LoaderCircleIcon } from "lucide-react";
 
 const FormSchema = z
   .object({
-    email: z.string().email({
+    email: z.string().min(1, { message: "E-mail é obrigatório" }).email({
       message: "Provide a valid email.",
     }),
+
     password: z
       .string()
       .min(6, {
-        message: "password must be at least 6 characters.",
+        message: "A senha deve ter pelo menos 6 caracteres.",
       })
       .max(8, {
-        message: "password must not be longer than 8 characters.",
+        message: "A senha não deve ter mais de 8 caracteres.",
       }),
     confirmPassword: z.string(),
-    privacyPolicy: z.boolean(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     path: ["confirmPassword"],
-    message: "Passwords don't match",
+    message: "As senhas não coincidem",
   });
 
 export default function Register() {
@@ -46,21 +52,47 @@ export default function Register() {
     handleSubmit,
     register,
     formState: { errors },
-  } = useForm({
-    resolver: yupResolver(FormSchema),
+  } = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
   });
 
-  async function onSubmit({ email, password }: z.infer<typeof FormSchema>) {}
+  const { push } = useRouter();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+
+  async function onSubmit({ email, password }: z.infer<typeof FormSchema>) {
+    setIsLoading(true);
+    const auth = getAuth(app);
+
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      setIsLoading(false);
+
+      push("login");
+      toast({
+        title: "Sucesso: cadastro realizado.",
+        description:
+          "Seus dados foi registrado sem problemas. Realiza o login.",
+      });
+    } catch (error) {
+      setIsLoading(false);
+      toast({
+        variant: "destructive",
+        title: "Aviso: nao foi possível registrar.",
+        description: "E-mail já está em uso.",
+      });
+    }
+  }
 
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
       className="flex min-h-screen justify-center items-center "
     >
-      <Card className="min-w-[350px]">
+      <Card className="min-w-[400px]">
         <CardHeader>
           <CardTitle className="text-3xl font-medium">
-            Tem certeza que você irá gostar!
+            Perfeito para você!
           </CardTitle>
           <CardDescription className="text-xl font-medium">
             Vamos criar sua conta?
@@ -68,15 +100,41 @@ export default function Register() {
         </CardHeader>
         <CardContent>
           <div className="grid w-full items-center gap-4">
-            <Input id="name" placeholder="E-mail" />
-            <Input id="name" placeholder="******" />
+            <div className="relative flex flex-col gap-2">
+              <Input {...register("email")} type="text" placeholder="E-mail" />
+              {errors?.email?.message}
+            </div>
+            <div className="relative flex flex-col gap-2">
+              <Input
+                {...register("password")}
+                type="password"
+                placeholder="Senha"
+              />
+              {errors?.password?.message}
+            </div>
+            <div className="relative flex flex-col gap-2">
+              <Input
+                {...register("confirmPassword")}
+                type="password"
+                placeholder="Confirmação de senha"
+              />
+              {errors?.confirmPassword?.message}
+            </div>
           </div>
         </CardContent>
         <CardFooter className="flex justify-between">
-          <Link href="register">
-            <Button variant="link">Eu não tenho um conta!</Button>
+          <Link href="login">
+            <Button type="button" variant="link">
+              Eu ja tenho uma conta!
+            </Button>
           </Link>
-          <Button>Entrar</Button>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? (
+              <LoaderCircleIcon className="h-6 w-6 text-zic-50 animate-spin" />
+            ) : (
+              "Confirmar"
+            )}
+          </Button>
         </CardFooter>
       </Card>
     </form>

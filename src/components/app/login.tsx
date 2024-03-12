@@ -2,13 +2,16 @@
 
 // IMPORTS
 import Link from "next/link";
-import { yupResolver } from "@hookform/resolvers/yup";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 // SERVICES
 import * as z from "zod";
-import app from "@/utils/firebase";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import app from "@/services/firebase";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { removeUserCookie, setUserCookie } from "@/services/session";
 
 // COMPONENTS
 import { Button } from "@/components/ui/button";
@@ -21,15 +24,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { EyeIcon, EyeOffIcon, LockIcon } from "lucide-react";
-import { useState } from "react";
-import { FormMessage } from "../ui/form";
+import { EyeIcon, EyeOffIcon, LoaderCircleIcon } from "lucide-react";
+import { useToast } from "../ui/use-toast";
 
 const FormSchema = z.object({
-  email: z.string().email({
-    message: "Provide a valid email.",
+  email: z.string().min(1, { message: "E-mail é obrigatório" }).email({
+    message: "E-mail inválido.",
   }),
-  password: z.string(),
+  password: z.string().min(1, { message: "Senha é obrigatório" }),
 });
 
 export default function LayoutLogin() {
@@ -37,26 +39,43 @@ export default function LayoutLogin() {
     handleSubmit,
     register,
     formState: { errors },
-  } = useForm({
-    resolver: yupResolver(FormSchema),
+  } = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
   });
 
+  const { push } = useRouter();
+  const { toast } = useToast();
   const [passwordView, setPasswordView] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  async function onSubmit({ email, password }: z.infer<typeof FormSchema>) {
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+    setIsLoading(true);
     const auth = getAuth(app);
-    console.log("email, password ", email, password);
-    // try {
-    //   const userCredential = await createUserWithEmailAndPassword(
-    //     auth,
-    //     email,
-    //     password
-    //   );
-    //   const user = userCredential.user;
-    //   console.log("Usuário cadastrado:", user);
-    // } catch (error) {
-    //   console.error("Erro ao cadastrar usuário:", error.message);
-    // }
+    const { email, password } = data;
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const { uid } = userCredential.user;
+      removeUserCookie();
+      setUserCookie(uid);
+      setIsLoading(false);
+
+      push("balance");
+      toast({
+        title: "Sucesso: login realizado.",
+        description: "Seja bem-vindo à nossa plataforma.",
+      });
+    } catch (error) {
+      setIsLoading(false);
+      toast({
+        variant: "destructive",
+        title: "Aviso: nao foi possível entrar.",
+        description: "E-mail ou senha estão incorretos.",
+      });
+    }
   }
 
   return (
@@ -64,18 +83,21 @@ export default function LayoutLogin() {
       onSubmit={handleSubmit(onSubmit)}
       className="flex min-h-screen justify-center items-center "
     >
-      <Card className="min-w-[350px]">
+      <Card className="min-w-[400px]">
         <CardHeader>
           <CardTitle className="text-3xl font-medium">Olá de novo!!</CardTitle>
-          <CardDescription className="text-xl font-medium">
+          <CardDescription className="text-lg font-medium">
             Bem vindo de volta.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid w-full items-center gap-4">
-            <Input id="name" placeholder="E-mail" />
+            <div className="relative flex flex-col gap-2">
+              <Input {...register("email")} placeholder="E-mail" />
+              {errors?.email?.message}
+            </div>
 
-            <div className="relative">
+            <div className="relative flex flex-col gap-2">
               <Input
                 type={!passwordView ? "password" : "text"}
                 placeholder="Password"
@@ -87,20 +109,29 @@ export default function LayoutLogin() {
                 variant="link"
                 onClick={() => setPasswordView(!passwordView)}
               >
-                {!passwordView ? (
-                  <EyeIcon className="h-6 w-6 text-secondary-300  " />
+                {passwordView ? (
+                  <EyeIcon className="h-6 w-6 text-secondary-300" />
                 ) : (
                   <EyeOffIcon className="h-6 w-6 text-secondary-300" />
                 )}
               </Button>
+              {errors?.password?.message}
             </div>
           </div>
         </CardContent>
         <CardFooter className="flex justify-between">
           <Link href="register">
-            <Button variant="link">Eu não tenho um conta!</Button>
+            <Button type="button" variant="link">
+              Eu não tenho um conta!
+            </Button>
           </Link>
-          <Button>Entrar</Button>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? (
+              <LoaderCircleIcon className="h-6 w-6 text-zic-50 animate-spin" />
+            ) : (
+              "Entrar"
+            )}
+          </Button>
         </CardFooter>
       </Card>
     </form>
