@@ -1,26 +1,79 @@
+"use client";
+
+// IMPORTS
+import Link from "next/link";
+import React from "react";
+import { usePathname } from "next/navigation";
+
+// SERVICES
+import { useUser } from "@/context/UserContext";
+
+// COMPONENTS
+import { Separator } from "../ui/separator";
+import { CircleDollarSignIcon, LogOutIcon, WalletIcon } from "lucide-react";
+import { Button } from "../ui/button";
+
 export default function NavigationMenu() {
+  const pathname = usePathname();
+  const { logOutUser } = useUser();
+
+  const items = [
+    {
+      name: "Payments",
+      href: "/payment",
+      onClick: () => {},
+      icon: <CircleDollarSignIcon className="h-6 w-6" />,
+    },
+    {
+      name: "Balance",
+      href: "/balance",
+      onClick: () => {},
+      icon: <WalletIcon className="h-6 w-6" />,
+    },
+    {
+      name: "Sair da conta",
+      href: "/login",
+      onClick: () => logOutUser,
+      icon: <LogOutIcon className="h-6 w-6" />,
+    },
+  ];
+
   return (
     <div className="flex-shrink-0 w-64 bg-zinc-800 text-white">
-      <div className="p-4">
-        <h1 className="text-lg font-bold mb-4">Menu Lateral</h1>
-        <ul>
-          <li className="mb-2">
-            <a href="#" className="block text-white hover:text-gray-400">
-              Link 1
-            </a>
-          </li>
-          <li className="mb-2">
-            <a href="#" className="block text-white hover:text-gray-400">
-              Link 2
-            </a>
-          </li>
-          <li className="mb-2">
-            <a href="#" className="block text-white hover:text-gray-400">
-              Link 3
-            </a>
-          </li>
-        </ul>
-      </div>
+      <ul className="py-4">
+        {items.map(({ href, name, onClick, icon }, index) => (
+          <React.Fragment key={index}>
+            <li
+              className={`flex items-center gap-4 ${
+                pathname === href && "bg-slate-500/50"
+              } p-4`}
+            >
+              {icon}
+
+              {href === "login" ? (
+                <Button
+                  onClick={onClick}
+                  variant="link"
+                  className="text-base block text-white"
+                >
+                  {name}
+                </Button>
+              ) : (
+                <Link
+                  onClick={onClick}
+                  href={href}
+                  className="text-base block text-white"
+                >
+                  {name}
+                </Link>
+              )}
+            </li>
+            {items.length - 1 !== index && (
+              <Separator className="bg-zinc-950" />
+            )}
+          </React.Fragment>
+        ))}
+      </ul>
     </div>
   );
 }

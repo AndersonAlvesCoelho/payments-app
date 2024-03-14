@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 
 // SERVICES
 import * as z from "zod";
-import app from "@/services/firebase";
+import { app } from "@/services/firebase";
 import { useToast } from "@/components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";

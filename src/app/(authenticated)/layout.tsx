@@ -5,8 +5,8 @@ import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 // SERVICES
-import { useUser } from "@/context/UserContext";
 import { getUserCookie } from "@/services/session";
+import { BalanceProvider } from "@/context/BalanceContext";
 
 // COMPONENTS
 import Header from "@/components/app/header";
@@ -18,23 +18,24 @@ export default function AuthenticatedLayout({
   children: React.ReactNode;
 }) {
   const { push } = useRouter();
-  const userId = getUserCookie();
+  const userCookie = getUserCookie();
 
   useEffect(() => {
-    console.log("userId ", userId);
-    if (!userId) {
+    if (!userCookie) {
       push("login");
     }
-  }, [userId, push]);
+  }, [push]);
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen ">
       <Header />
 
       <div className="flex flex-1">
         <NavigationMenu />
 
-        <div className="flex-1 p-4">{children}</div>
+        <div className="flex-1 p-4">
+          <BalanceProvider>{children}</BalanceProvider>
+        </div>
       </div>
     </div>
   );

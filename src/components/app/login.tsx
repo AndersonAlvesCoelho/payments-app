@@ -9,8 +9,18 @@ import { useRouter } from "next/navigation";
 
 // SERVICES
 import * as z from "zod";
-import app from "@/services/firebase";
+import { app } from "@/services/firebase";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import {
+  child,
+  get,
+  getDatabase,
+  onValue,
+  ref,
+  set,
+  off,
+  DataSnapshot,
+} from "firebase/database";
 import { removeUserCookie, setUserCookie } from "@/services/session";
 
 // COMPONENTS
@@ -58,9 +68,12 @@ export default function LayoutLogin() {
         email,
         password
       );
-      const { uid } = userCredential.user;
+
+      // @ts-ignore
+      const { uid, accessToken } = userCredential.user;
+
       removeUserCookie();
-      setUserCookie(uid);
+      setUserCookie({ accessToken, uid });
       setIsLoading(false);
 
       push("balance");
