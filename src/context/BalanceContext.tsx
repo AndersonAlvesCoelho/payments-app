@@ -2,7 +2,14 @@
 
 // IMPORTS
 import { ReactNode, createContext, useContext, useState } from "react";
-import { collection, doc, getDoc, getDocs } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  updateDoc,
+} from "firebase/firestore";
 
 // SERVICES
 import { getUserCookie } from "@/services/session";
@@ -14,71 +21,155 @@ import { toast } from "@/components/ui/use-toast";
 
 interface BalanceContextData {
   isLoading: boolean;
-  balance: BalanceProps[];
+  balances: BalanceProps[];
+  balanceForId: BalanceProps | null;
+  isOpenEdit: boolean;
 
   setIsLoading: (value: boolean) => void;
+  setIsOpenEdit: (value: boolean) => void;
+
   getBalanceByUserId: () => void;
-  getBalanceById: (id: string) => void;
+  getBalanceById: (documentId: string) => Promise<boolean>;
+  createBalance: (value: BalanceProps) => Promise<boolean>;
+  editBalance: (value: BalanceProps, documentId: string) => Promise<boolean>;
 }
 
 const BalanceContext = createContext<BalanceContextData>({
   isLoading: false,
-  balance: [],
+  balances: [],
+  balanceForId: null,
+  isOpenEdit: false,
 
   setIsLoading: () => {},
+  setIsOpenEdit: () => {},
   getBalanceByUserId: () => {},
-  getBalanceById: () => {},
+  getBalanceById: () => Promise.resolve(false),
+  createBalance: () => Promise.resolve(false),
+  editBalance: () => Promise.resolve(false),
 });
 
 function BalanceProvider({ children }: { children: ReactNode }) {
   const userCookie = getUserCookie();
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [balance, setBalance] = useState<BalanceProps[]>([]);
+  const [isOpenEdit, setIsOpenEdit] = useState<boolean>(false);
+  const [balances, setBalances] = useState<BalanceProps[]>([]);
+  const [balanceForId, setBalanceForId] = useState<BalanceProps | null>(null);
 
   async function getBalanceByUserId() {
     try {
       setIsLoading(true);
-      const balancesCollectionRef = collection(db, "balance");
+
+      const balancesCollectionRef = collection(db, "balances");
       const querySnapshot = await getDocs(balancesCollectionRef);
 
-      const arrayBalance: BalanceProps[] = [];
-      querySnapshot.forEach((doc) => {
-        arrayBalance.push(doc.data() as BalanceProps);
-      });
+      const formatBalance: BalanceProps[] = querySnapshot.docs
+        .map((doc) => {
+          const data = doc.data();
+          const balance: BalanceProps = {
+            balanceId: doc.id,
+            initialValue: data.initialValue,
+            remainingValue: data.remainingValue,
+            name: data.name,
+            description: data.description,
+            userId: data.userId,
+            usedValue: data.initialValue - data.remainingValue,
+          };
 
-      const formatBalance = arrayBalance.map((item) => {
-        return {
-          ...item,
-          initialValue: item.initialValue.toFixed(2),
-          remainingValue: item.remainingValue.toFixed(2),
-          usedValue: item.initialValue - item.remainingValue,
-        };
-      });
-
-      console.log("formatBalance ", formatBalance);
+          return balance;
+        })
+        .filter((bal) => bal.userId === userCookie?.uid);
 
       setIsLoading(false);
-      setBalance(formatBalance);
+      setBalances(formatBalance);
     } catch (error) {
       setIsLoading(false);
-      setBalance([]);
+      setBalances([]);
     }
   }
 
-  async function getBalanceById(id: string): Promise<BalanceProps | null> {
+  async function getBalanceById(docId: string) {
     try {
-      const docRef = doc(db, "balance", id);
+      setIsLoading(true);
+
+      const docRef = doc(db, "balances", docId);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
-        return docSnap.data() as BalanceProps;
+        const balance = {
+          ...docSnap.data(),
+          balanceId: docSnap.id,
+          initialValue: docSnap
+            .data()
+            .initialValue.toString()
+            .replace(".", ","),
+        } as BalanceProps;
+        setBalanceForId(balance);
+        return true;
       } else {
-        return null;
+        setBalanceForId(null);
+        return false;
       }
     } catch (error) {
-      console.error("Erro ao obter dados:", error);
-      throw error;
+      setBalanceForId(null);
+      return false;
+    }
+  }
+
+  async function createBalance(balance: BalanceProps): Promise<boolean> {
+    try {
+      const balancesCollectionRef = collection(db, "balances");
+      await addDoc(balancesCollectionRef, balance);
+
+      setBalances([...balances, balance]);
+      toast({
+        title: "Sucesso: saldo registro .",
+        description: "O saldo foi cadastrado com sucesso!",
+      });
+      return true;
+    } catch (e) {
+      console.error("Erro ao adicionar documento: ", e);
+      toast({
+        variant: "destructive",
+        title: "Aviso: erro ao registro o saldo.",
+        description:
+          "Não foi possivel registrar o saldo. Tente novamente mais tarde.",
+      });
+      return false;
+    }
+  }
+
+  async function editBalance(
+    updatedData: BalanceProps,
+    documentId: string
+  ): Promise<boolean> {
+    try {
+      console.log("documentId!,  ", documentId);
+
+      const docRef = doc(db, "balances", documentId);
+      await updateDoc(docRef, updatedData as { [key: string]: any });
+
+      setBalances((currentBalance) =>
+        currentBalance.map((item) =>
+          item.balanceId === updatedData.balanceId ? { ...updatedData } : item
+        )
+      );
+
+      toast({
+        title: "Sucesso: Saldo autalizado",
+        description: "O saldo foi atualizado com sucesso!",
+      });
+
+      return true;
+    } catch (error) {
+      console.error("Erro ao atualizar o documento: ", error);
+      toast({
+        variant: "destructive",
+        title: "Aviso: Erro ao atualizar.",
+        description: "Não foi possível atualizar o saldo.",
+      });
+
+      return false;
     }
   }
 
@@ -86,11 +177,17 @@ function BalanceProvider({ children }: { children: ReactNode }) {
     <BalanceContext.Provider
       value={{
         isLoading,
-        balance,
+        balances,
+        isOpenEdit,
+        balanceForId,
 
         setIsLoading,
+        setIsOpenEdit,
+
         getBalanceByUserId,
         getBalanceById,
+        createBalance,
+        editBalance,
       }}
     >
       {children}

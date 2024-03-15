@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 
 // SERVICES
 import * as z from "zod";
-import { app } from "@/services/firebase";
+import { auth } from "@/services/firebase";
 import { useToast } from "@/components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
@@ -28,23 +28,23 @@ import { LoaderCircleIcon } from "lucide-react";
 
 const FormSchema = z
   .object({
-    email: z.string().min(1, { message: "E-mail é obrigatório" }).email({
-      message: "Provide a valid email.",
+    email: z.string().min(1, { message: "E-mail é obrigatório. *" }).email({
+      message: "Provide a valid email. *",
     }),
 
     password: z
       .string()
       .min(6, {
-        message: "A senha deve ter pelo menos 6 caracteres.",
+        message: "A senha deve ter pelo menos 6 caracteres. *",
       })
       .max(8, {
-        message: "A senha não deve ter mais de 8 caracteres.",
+        message: "A senha não deve ter mais de 8 caracteres. *",
       }),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     path: ["confirmPassword"],
-    message: "As senhas não coincidem",
+    message: "As senhas não coincidem. *",
   });
 
 export default function Register() {
@@ -62,7 +62,6 @@ export default function Register() {
 
   async function onSubmit({ email, password }: z.infer<typeof FormSchema>) {
     setIsLoading(true);
-    const auth = getAuth(app);
 
     try {
       await createUserWithEmailAndPassword(auth, email, password);
@@ -110,7 +109,9 @@ export default function Register() {
                 type="password"
                 placeholder="Senha"
               />
-              {errors?.password?.message}
+              <p className="text-sm font-medium text-red-600">
+                {errors?.password?.message}
+              </p>
             </div>
             <div className="relative flex flex-col gap-2">
               <Input
@@ -118,7 +119,9 @@ export default function Register() {
                 type="password"
                 placeholder="Confirmação de senha"
               />
-              {errors?.confirmPassword?.message}
+              <p className="text-sm font-medium text-red-600">
+                {errors?.confirmPassword?.message}
+              </p>
             </div>
           </div>
         </CardContent>

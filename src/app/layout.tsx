@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 
 // SERVICES
 import { UserProvider } from "@/context/UserContext";
+import { BalanceProvider } from "@/context/BalanceContext";
 
 // COMPONENTS
 import { Inter } from "next/font/google";
@@ -28,7 +29,9 @@ export default function RootLayout({
         <Toaster />
         <NextTopLoader />
 
-        <UserProvider>{children}</UserProvider>
+        <UserProvider>
+          <BalanceProvider>{children}</BalanceProvider>
+        </UserProvider>
       </body>
     </html>
   );

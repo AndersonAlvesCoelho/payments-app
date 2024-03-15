@@ -1,7 +1,9 @@
+"use client";
 // IMPORTS
+import { useState } from "react";
 
 // COMPONENTS
-import { PencilIcon, TrashIcon } from "lucide-react";
+import { LoaderCircleIcon, PencilIcon, TrashIcon } from "lucide-react";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 
@@ -10,18 +12,33 @@ import { Button } from "@/components/ui/button";
 // HELPS
 import { formatToBRL, truncateString } from "@/utils/format";
 import { BalanceProps } from "@/@types/balance.type";
+import { useBalance } from "@/context/BalanceContext";
 
 interface RenderBalanceProps {
   item: BalanceProps;
-  key: number;
+  key: number | string;
 }
 
 export default function RenderBalance({ item, key }: RenderBalanceProps) {
-  const { description, initialValue, name, remainingValue, usedValue, userId } =
-    item;
+  const { setIsOpenEdit, getBalanceById } = useBalance();
 
-  function handleEditBalance() {
-    console.log("handleEditBalance ", userId);
+  const {
+    description,
+    initialValue,
+    name,
+    remainingValue,
+    usedValue,
+    userId,
+    balanceId,
+  } = item;
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  async function handleEditBalance() {
+    setIsLoading(true);
+    await getBalanceById(balanceId);
+    setIsOpenEdit(true);
+    setIsLoading(false);
   }
 
   function handleDeleteBalance() {
@@ -38,12 +55,16 @@ export default function RenderBalance({ item, key }: RenderBalanceProps) {
       <TableCell>{formatToBRL(usedValue ? usedValue : 0)}</TableCell>
       <TableCell>{formatToBRL(remainingValue)}</TableCell>
       <TableCell className="flex gap-2 ">
-        <Button type="button" variant="link" onClick={handleEditBalance}>
+        <Button type="button" variant="link" onClick={handleDeleteBalance}>
           <TrashIcon className="h-6 w-6" />
         </Button>
 
-        <Button type="button" variant="link" onClick={handleDeleteBalance}>
-          <PencilIcon className="h-6 w-6" />
+        <Button type="button" variant="link" onClick={handleEditBalance}>
+          {isLoading ? (
+            <LoaderCircleIcon className="h-6 w-6 animate-spin" />
+          ) : (
+            <PencilIcon className="h-6 w-6" />
+          )}
         </Button>
       </TableCell>
     </TableRow>

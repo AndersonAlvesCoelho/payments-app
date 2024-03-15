@@ -24,8 +24,6 @@ interface TableDataProps {
 }
 
 export function TableData({ items }: TableDataProps) {
-  console.log("items ", items);
-
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
 
@@ -56,8 +54,8 @@ export function TableData({ items }: TableDataProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {items.map((item, index) => (
-            <RenderBalance item={item as BalanceProps} key={index} />
+          {items.map((item) => (
+            <RenderBalance item={item as BalanceProps} key={item.balanceId} />
           ))}
         </TableBody>
       </Table>

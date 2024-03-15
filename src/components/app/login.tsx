@@ -9,18 +9,8 @@ import { useRouter } from "next/navigation";
 
 // SERVICES
 import * as z from "zod";
-import { app } from "@/services/firebase";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import {
-  child,
-  get,
-  getDatabase,
-  onValue,
-  ref,
-  set,
-  off,
-  DataSnapshot,
-} from "firebase/database";
+import { auth } from "@/services/firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { removeUserCookie, setUserCookie } from "@/services/session";
 
 // COMPONENTS
@@ -38,10 +28,10 @@ import { EyeIcon, EyeOffIcon, LoaderCircleIcon } from "lucide-react";
 import { useToast } from "../ui/use-toast";
 
 const FormSchema = z.object({
-  email: z.string().min(1, { message: "E-mail é obrigatório" }).email({
-    message: "E-mail inválido.",
+  email: z.string().min(1, { message: "E-mail é obrigatório. *" }).email({
+    message: "E-mail inválido. *",
   }),
-  password: z.string().min(1, { message: "Senha é obrigatório" }),
+  password: z.string().min(1, { message: "Senha é obrigatório. *" }),
 });
 
 export default function LayoutLogin() {
@@ -60,7 +50,6 @@ export default function LayoutLogin() {
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     setIsLoading(true);
-    const auth = getAuth(app);
     const { email, password } = data;
     try {
       const userCredential = await signInWithEmailAndPassword(
@@ -107,7 +96,9 @@ export default function LayoutLogin() {
           <div className="grid w-full items-center gap-4">
             <div className="relative flex flex-col gap-2">
               <Input {...register("email")} placeholder="E-mail" />
-              {errors?.email?.message}
+              <p className="text-sm font-medium text-red-600">
+                {errors?.email?.message}
+              </p>
             </div>
 
             <div className="relative flex flex-col gap-2">
@@ -128,7 +119,9 @@ export default function LayoutLogin() {
                   <EyeOffIcon className="h-6 w-6 text-secondary-300" />
                 )}
               </Button>
-              {errors?.password?.message}
+              <p className="text-sm font-medium text-red-600">
+                {errors?.password?.message}
+              </p>
             </div>
           </div>
         </CardContent>

@@ -19,4 +19,20 @@ function truncateString(str: string, maxLength: number) {
   }
 }
 
-export { formatToBRL, truncateString };
+function convertToFloat(numberString: string) {
+  const stringWithoutThousandsSeparator = numberString.replace(/\./g, "");
+  const stringWithDotForDecimal = stringWithoutThousandsSeparator.replace(
+    /,/g,
+    "."
+  );
+
+  if (stringWithDotForDecimal === "0" || stringWithDotForDecimal === "") {
+    return 0.0;
+  }
+
+  const convertedNumber = parseFloat(stringWithDotForDecimal);
+
+  return isNaN(convertedNumber) ? 0.0 : convertedNumber;
+}
+
+export { formatToBRL, truncateString, convertToFloat };

@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 
 // SERVICES
 import { getUserCookie } from "@/services/session";
-import { BalanceProvider } from "@/context/BalanceContext";
 
 // COMPONENTS
 import Header from "@/components/app/header";
@@ -33,9 +32,7 @@ export default function AuthenticatedLayout({
       <div className="flex flex-1">
         <NavigationMenu />
 
-        <div className="flex-1 p-4">
-          <BalanceProvider>{children}</BalanceProvider>
-        </div>
+        <div className="flex-1 p-4">{children}</div>
       </div>
     </div>
   );
