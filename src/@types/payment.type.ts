@@ -1,5 +1,5 @@
 export interface PaymentProps {
-  balanceId?: string;
+  documentId?: string;
   name: string;
   description: string;
   price: number;

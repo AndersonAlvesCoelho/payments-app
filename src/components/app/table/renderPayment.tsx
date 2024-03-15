@@ -22,20 +22,20 @@ interface RenderPaymentProps {
 export default function RenderPayment({ item, key }: RenderPaymentProps) {
   const { setIsOpenEdit, setIsOpenDelete, getPaymentById } = usePayment();
 
-  const { description, name, price, balanceId } = item;
+  const { description, name, price, documentId } = item;
 
   const [isLoading, setIsLoading] = useState(false);
 
   async function handleEdit() {
     setIsLoading(true);
-    if (balanceId) await getPaymentById(balanceId);
+    if (documentId) await getPaymentById(documentId);
     setIsOpenEdit(true);
     setIsLoading(false);
   }
 
   async function handleDelete() {
     setIsLoading(true);
-    if (balanceId) await getPaymentById(balanceId);
+    if (documentId) await getPaymentById(documentId);
     setIsOpenDelete(true);
     setIsLoading(false);
   }

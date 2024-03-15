@@ -67,13 +67,13 @@ export function TableData({ items, type }: TableDataProps) {
               {type === "payment" && (
                 <RenderPayment
                   item={item as PaymentProps}
-                  key={item.balanceId}
+                  key={item.documentId}
                 />
               )}
               {type === "balance" && (
                 <RenderBalance
                   item={item as BalanceProps}
-                  key={item.balanceId}
+                  key={item.documentId}
                 />
               )}
             </>

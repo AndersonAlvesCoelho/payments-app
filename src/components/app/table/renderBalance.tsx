@@ -28,21 +28,21 @@ export default function RenderBalance({ item, key }: RenderBalanceProps) {
     name,
     remainingValue,
     usedValue,
-    balanceId,
+    documentId,
   } = item;
 
   const [isLoading, setIsLoading] = useState(false);
 
   async function handleEdit() {
     setIsLoading(true);
-    if (balanceId) await getBalanceById(balanceId);
+    if (documentId) await getBalanceById(documentId);
     setIsOpenEdit(true);
     setIsLoading(false);
   }
 
   async function handleDelete() {
     setIsLoading(true);
-    if (balanceId) await getBalanceById(balanceId);
+    if (documentId) await getBalanceById(documentId);
     setIsOpenDelete(true);
     setIsLoading(false);
   }

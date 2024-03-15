@@ -80,7 +80,7 @@ export default function ModalEditBalance({
         name,
       };
 
-      const documentId = balanceForId?.balanceId ?? "";
+      const documentId = balanceForId?.documentId ?? "";
       await editBalance(dataBalance, documentId);
     }
     setIsLoading(false);

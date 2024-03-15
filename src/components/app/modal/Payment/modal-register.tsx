@@ -54,7 +54,7 @@ const FormSchema = z.object({
   description: z.string().min(1, {
     message: "Descrição é obrigatório. *",
   }),
-  balanceId: z.string().min(1, {
+  documentId: z.string().min(1, {
     message: "Valor do saldo é obrigatório. *",
   }),
 });
@@ -90,7 +90,7 @@ export default function ModalRegisterPayment({
     description,
     price,
     name,
-    balanceId,
+    documentId,
   }: z.infer<typeof FormSchema>) {
     setIsLoading(true);
 
@@ -103,7 +103,7 @@ export default function ModalRegisterPayment({
     };
 
     const balanceFind = balances.find(
-      (balance) => balance.balanceId === balanceId
+      (balance) => balance.documentId === documentId
     );
 
     if (balanceFind && balanceFind.remainingValue > priceFormat) {
@@ -113,7 +113,7 @@ export default function ModalRegisterPayment({
         usedValue: priceFormat,
       };
 
-      await editBalance(balance, balanceId);
+      await editBalance(balance, documentId);
       await createPayment(payment);
 
       reset();
@@ -181,7 +181,7 @@ export default function ModalRegisterPayment({
             {balances.length !== 0 ? (
               <FormField
                 control={control}
-                name="balanceId"
+                name="documentId"
                 render={({ field }) => (
                   <div className="relative flex flex-col gap-2">
                     <FormItem>
@@ -196,7 +196,7 @@ export default function ModalRegisterPayment({
                           {balances.map((balance, index) => (
                             <SelectItem
                               key={index}
-                              value={balance?.balanceId ?? ""}
+                              value={balance?.documentId ?? ""}
                             >
                               {balance.name} -{" "}
                               {formatToBRL(balance.remainingValue)}
@@ -206,7 +206,7 @@ export default function ModalRegisterPayment({
                       </Select>
                     </FormItem>
                     <p className="text-sm font-medium text-red-600">
-                      {errors?.balanceId?.message}
+                      {errors?.documentId?.message}
                     </p>
                   </div>
                 )}

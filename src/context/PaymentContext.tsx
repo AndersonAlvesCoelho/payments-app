@@ -65,7 +65,7 @@ function PaymentProvider({ children }: { children: ReactNode }) {
   const [isOpenEdit, setIsOpenEdit] = useState<boolean>(false);
   const [isOpenDelete, setIsOpenDelete] = useState<boolean>(false);
   const [payments, setBalances] = useState<PaymentProps[]>([]);
-  const [paymentForId, setBalanceForId] = useState<PaymentProps | null>(null);
+  const [paymentForId, setPaymentForId] = useState<PaymentProps | null>(null);
 
   async function getPaymentByUserId() {
     try {
@@ -78,7 +78,7 @@ function PaymentProvider({ children }: { children: ReactNode }) {
         .map((doc) => {
           const data = doc.data();
           const payment: PaymentProps = {
-            balanceId: doc.id,
+            documentId: doc.id,
             name: data.name,
             description: data.description,
             userId: data.userId,
@@ -97,26 +97,27 @@ function PaymentProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  async function getPaymentById(docId: string) {
+  async function getPaymentById(documentId: string) {
     try {
       setIsLoading(true);
 
-      const docRef = doc(db, "payments", docId);
+      const docRef = doc(db, "payments", documentId);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
         const payment = {
           ...docSnap.data(),
-          price: docSnap.data().initialValue.toString().replace(".", ","),
+          documentId: docSnap.id,
+          price: docSnap.data().price.toString().replace(".", ","),
         } as PaymentProps;
-        setBalanceForId(payment);
+        setPaymentForId(payment);
         return true;
       } else {
-        setBalanceForId(null);
+        setPaymentForId(null);
         return false;
       }
     } catch (error) {
-      setBalanceForId(null);
+      setPaymentForId(null);
       return false;
     }
   }
@@ -153,7 +154,7 @@ function PaymentProvider({ children }: { children: ReactNode }) {
 
       setBalances((currentBalance) =>
         currentBalance.map((item) =>
-          item.balanceId === updatedData.balanceId ? { ...updatedData } : item
+          item.documentId === updatedData.documentId ? { ...updatedData } : item
         )
       );
 
@@ -164,6 +165,8 @@ function PaymentProvider({ children }: { children: ReactNode }) {
 
       return true;
     } catch (error) {
+      console.error("Erro ao buscar documento: ", error);
+
       toast({
         variant: "destructive",
         title: "Aviso: Erro ao atualizar.",
@@ -179,7 +182,7 @@ function PaymentProvider({ children }: { children: ReactNode }) {
       const docRef = doc(db, "payments", documentId);
       await deleteDoc(docRef);
       setBalances((currentBalances) =>
-        currentBalances.filter((payment) => payment.balanceId !== documentId)
+        currentBalances.filter((payment) => payment.documentId !== documentId)
       );
       toast({
         title: "Sucesso",

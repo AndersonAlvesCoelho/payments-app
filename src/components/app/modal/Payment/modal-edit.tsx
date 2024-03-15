@@ -69,18 +69,18 @@ export default function ModalEditPayment({
   }: z.infer<typeof FormSchema>) {
     setIsLoading(true);
 
-    const initialValueFormat = parseFloat(price.replace(/,/g, "."));
+    const priceFormat = parseFloat(price.replace(/,/g, "."));
 
     if (paymentForId) {
-      const dataBalance: PaymentProps = {
+      const dataPayment: PaymentProps = {
         ...paymentForId,
         description,
-        price: parseFloat(initialValueFormat.toFixed(2)),
+        price: parseFloat(priceFormat.toFixed(2)),
         name,
       };
 
-      const documentId = paymentForId?.balanceId ?? "";
-      await editPayment(dataBalance, documentId);
+      const documentId = paymentForId?.documentId ?? "";
+      await editPayment(dataPayment, documentId);
     }
     setIsLoading(false);
     reset();
@@ -106,9 +106,9 @@ export default function ModalEditPayment({
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
-            <DialogTitle>Editar saldo</DialogTitle>
+            <DialogTitle>Editar pagamento</DialogTitle>
             <DialogDescription>
-              Por favor, preencha as informações abaixo para editar saldo{" "}
+              Por favor, preencha as informações abaixo para editar pagamento{" "}
               <b>{paymentForId?.name}</b>.
             </DialogDescription>
           </DialogHeader>
@@ -117,7 +117,7 @@ export default function ModalEditPayment({
               <Input
                 {...register("name")}
                 type="text"
-                placeholder="name do saldo"
+                placeholder="name do pagamento"
               />
               <p className="text-sm font-medium text-red-600">
                 {errors?.name?.message}
@@ -129,6 +129,7 @@ export default function ModalEditPayment({
                 type="text"
                 placeholder="Valor inicial"
                 pattern="^\d+,\d{1,3}$|^\d+$"
+                disabled
               />
               <p className="text-sm font-medium text-red-600">
                 {errors?.price?.message}

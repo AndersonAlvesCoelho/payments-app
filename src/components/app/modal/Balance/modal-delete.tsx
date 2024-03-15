@@ -34,7 +34,7 @@ export default function ModalDeleteBalance({
   }
   async function handleDelete() {
     setIsLoading(true);
-    const documentId = balanceForId?.balanceId ?? "";
+    const documentId = balanceForId?.documentId ?? "";
     await deleteBalanceById(documentId);
     handleClose();
     setIsLoading(false);

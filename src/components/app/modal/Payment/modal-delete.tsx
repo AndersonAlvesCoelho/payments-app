@@ -34,7 +34,7 @@ export default function ModalDeletePayment({
   }
   async function handleDelete() {
     setIsLoading(true);
-    const documentId = paymentForId?.balanceId ?? "";
+    const documentId = paymentForId?.documentId ?? "";
     await deletePaymentById(documentId);
     handleClose();
     setIsLoading(false);

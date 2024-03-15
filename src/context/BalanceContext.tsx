@@ -78,7 +78,7 @@ function BalanceProvider({ children }: { children: ReactNode }) {
         .map((doc) => {
           const data = doc.data();
           const balance: BalanceProps = {
-            balanceId: doc.id,
+            documentId: doc.id,
             initialValue: data.initialValue,
             remainingValue: data.remainingValue,
             name: data.name,
@@ -109,7 +109,7 @@ function BalanceProvider({ children }: { children: ReactNode }) {
       if (docSnap.exists()) {
         const balance = {
           ...docSnap.data(),
-          balanceId: docSnap.id,
+          documentId: docSnap.id,
           initialValue: docSnap
             .data()
             .initialValue.toString()
@@ -159,7 +159,7 @@ function BalanceProvider({ children }: { children: ReactNode }) {
 
       setBalances((currentBalance) =>
         currentBalance.map((item) =>
-          item.balanceId === updatedData.balanceId ? { ...updatedData } : item
+          item.documentId === updatedData.documentId ? { ...updatedData } : item
         )
       );
 
@@ -185,7 +185,7 @@ function BalanceProvider({ children }: { children: ReactNode }) {
       const docRef = doc(db, "balances", documentId);
       await deleteDoc(docRef);
       setBalances((currentBalances) =>
-        currentBalances.filter((balance) => balance.balanceId !== documentId)
+        currentBalances.filter((balance) => balance.documentId !== documentId)
       );
       toast({
         title: "Sucesso",

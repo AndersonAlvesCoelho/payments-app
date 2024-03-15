@@ -1,5 +1,5 @@
 export interface BalanceProps {
-  balanceId?: string;
+  documentId?: string;
   name: string;
   description: string;
   initialValue: number;
