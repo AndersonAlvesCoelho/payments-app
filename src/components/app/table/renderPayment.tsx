@@ -8,41 +8,34 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 
 // SERVICES
-import { useBalance } from "@/context/BalanceContext";
-import { BalanceProps } from "@/@types/balance.type";
+import { usePayment } from "@/context/PaymentContext";
+import { PaymentProps } from "@/@types/payment.type";
 
 // HELPS
 import { formatToBRL, truncateString } from "@/utils/format";
 
-interface RenderBalanceProps {
-  item: BalanceProps;
+interface RenderPaymentProps {
+  item: PaymentProps;
   key: number;
 }
 
-export default function RenderBalance({ item, key }: RenderBalanceProps) {
-  const { setIsOpenEdit, setIsOpenDelete, getBalanceById } = useBalance();
+export default function RenderPayment({ item, key }: RenderPaymentProps) {
+  const { setIsOpenEdit, setIsOpenDelete, getPaymentById } = usePayment();
 
-  const {
-    description,
-    initialValue,
-    name,
-    remainingValue,
-    usedValue,
-    balanceId,
-  } = item;
+  const { description, name, price, balanceId } = item;
 
   const [isLoading, setIsLoading] = useState(false);
 
   async function handleEdit() {
     setIsLoading(true);
-    if (balanceId) await getBalanceById(balanceId);
+    if (balanceId) await getPaymentById(balanceId);
     setIsOpenEdit(true);
     setIsLoading(false);
   }
 
   async function handleDelete() {
     setIsLoading(true);
-    if (balanceId) await getBalanceById(balanceId);
+    if (balanceId) await getPaymentById(balanceId);
     setIsOpenDelete(true);
     setIsLoading(false);
   }
@@ -53,9 +46,7 @@ export default function RenderBalance({ item, key }: RenderBalanceProps) {
       <TableCell className="w-[200px]">
         {truncateString(description, 30)}
       </TableCell>
-      <TableCell>{formatToBRL(initialValue)}</TableCell>
-      <TableCell>{formatToBRL(usedValue ? usedValue : 0)}</TableCell>
-      <TableCell>{formatToBRL(remainingValue)}</TableCell>
+      <TableCell>{formatToBRL(price)}</TableCell>
       <TableCell className="flex gap-2 ">
         {isLoading ? (
           <LoaderCircleIcon className="h-6 w-6 animate-spin" />

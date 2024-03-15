@@ -139,7 +139,6 @@ function BalanceProvider({ children }: { children: ReactNode }) {
       });
       return true;
     } catch (e) {
-      console.error("Erro ao adicionar documento: ", e);
       toast({
         variant: "destructive",
         title: "Aviso: erro ao registro o saldo.",
@@ -155,8 +154,6 @@ function BalanceProvider({ children }: { children: ReactNode }) {
     documentId: string
   ): Promise<boolean> {
     try {
-      console.log("documentId!,  ", documentId);
-
       const docRef = doc(db, "balances", documentId);
       await updateDoc(docRef, updatedData as { [key: string]: any });
 
@@ -173,7 +170,6 @@ function BalanceProvider({ children }: { children: ReactNode }) {
 
       return true;
     } catch (error) {
-      console.error("Erro ao atualizar o documento: ", error);
       toast({
         variant: "destructive",
         title: "Aviso: Erro ao atualizar.",
@@ -198,7 +194,6 @@ function BalanceProvider({ children }: { children: ReactNode }) {
 
       return true;
     } catch (error) {
-      console.error("Erro ao excluir o documento: ", error);
       toast({
         variant: "destructive",
         title: "Erro ao excluir",

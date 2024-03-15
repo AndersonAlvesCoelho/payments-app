@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 // SERVICES
 import { getUserCookie } from "@/services/session";
+import { useBalance } from "@/context/BalanceContext";
 
 // COMPONENTS
 import Header from "@/components/app/header";
@@ -17,6 +18,7 @@ export default function AuthenticatedLayout({
   children: React.ReactNode;
 }) {
   const { push } = useRouter();
+  const { getBalanceByUserId } = useBalance();
   const userCookie = getUserCookie();
 
   useEffect(() => {
@@ -24,6 +26,10 @@ export default function AuthenticatedLayout({
       push("login");
     }
   }, [push]);
+
+  useEffect(() => {
+    getBalanceByUserId();
+  }, []);
 
   return (
     <div className="flex flex-col h-screen ">

@@ -7,16 +7,15 @@ import { useEffect, useState } from "react";
 import { useBalance } from "@/context/BalanceContext";
 
 // COMPONENTS
-import ModalRegisterBalance from "@/components/app/modal/modal-register-balance";
+import ModalRegisterBalance from "@/components/app/modal/Balance/modal-register";
 import { LoaderCircleIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TableData } from "@/components/app/table/table";
-import ModalEditBalance from "@/components/app/modal/modal-edit-balance";
-import ModalDeleteBalance from "@/components/app/modal/modal-delete-balance";
+import ModalEditBalance from "@/components/app/modal/Balance/modal-edit";
+import ModalDeleteBalance from "@/components/app/modal/Balance/modal-delete";
 
 export default function Balance() {
   const {
-    getBalanceByUserId,
     isLoading,
     balances,
     isOpenEdit,
@@ -26,10 +25,6 @@ export default function Balance() {
   } = useBalance();
 
   const [isOpenRegister, setIsOpenRegister] = useState(false);
-
-  useEffect(() => {
-    getBalanceByUserId();
-  }, []);
 
   if (balances.length === 0) {
     return (
@@ -81,7 +76,7 @@ export default function Balance() {
         </Button>
       </div>
 
-      <TableData items={balances} />
+      <TableData items={balances} type="balance" />
     </main>
   );
 }

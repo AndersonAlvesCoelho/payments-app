@@ -1,7 +1,18 @@
+"use client";
+
+// IMPORTS
+import { useState } from "react";
+
+// SERVICES
+import { BalanceProps } from "@/@types/balance.type";
+import { PaymentProps } from "@/@types/payment.type";
+
+// COMPONENTS
+import RenderBalance from "./renderBalance";
+import RenderPayment from "./renderPayment";
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
@@ -15,15 +26,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
-import RenderBalance from "./renderBalance";
-import { BalanceProps } from "@/@types/balance.type";
 
 interface TableDataProps {
   items: any[];
+  type: "payment" | "balance";
 }
 
-export function TableData({ items }: TableDataProps) {
+export function TableData({ items, type }: TableDataProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
 
@@ -45,15 +54,29 @@ export function TableData({ items }: TableDataProps) {
           <TableRow>
             <TableHead>Nome</TableHead>
             <TableHead className="w-[100px]">Descrição</TableHead>
-            <TableHead>Valor inicial</TableHead>
-            <TableHead>Valor utilizado</TableHead>
-            <TableHead>Valor restante</TableHead>
+            {type === "payment" && <TableHead>Valor</TableHead>}
+            {type === "balance" && <TableHead>Valor inicial</TableHead>}
+            {type === "balance" && <TableHead>Valor utilizado</TableHead>}
+            {type === "balance" && <TableHead>Valor restante</TableHead>}
             <TableHead>Ações</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {currentItems.map((item) => (
-            <RenderBalance item={item as BalanceProps} key={item.balanceId} />
+            <>
+              {type === "payment" && (
+                <RenderPayment
+                  item={item as PaymentProps}
+                  key={item.balanceId}
+                />
+              )}
+              {type === "balance" && (
+                <RenderBalance
+                  item={item as BalanceProps}
+                  key={item.balanceId}
+                />
+              )}
+            </>
           ))}
         </TableBody>
       </Table>

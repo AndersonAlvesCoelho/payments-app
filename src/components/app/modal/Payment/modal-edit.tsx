@@ -7,8 +7,8 @@ import { useForm } from "react-hook-form";
 // SERVICES
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useBalance } from "@/context/BalanceContext";
-import { getUserCookie } from "@/services/session";
+import { PaymentProps } from "@/@types/payment.type";
+import { usePayment } from "@/context/PaymentContext";
 
 // COMPONENTS
 import { Button } from "@/components/ui/button";
@@ -22,9 +22,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { LoaderCircleIcon } from "lucide-react";
-import { BalanceProps } from "@/@types/balance.type";
 
-interface ModalEditBalanceProps {
+interface ModalEditPaymentProps {
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
 }
@@ -33,19 +32,19 @@ const FormSchema = z.object({
   name: z.string().min(1, {
     message: "name é obrigatório. *",
   }),
-  initialValue: z.string().min(1, {
-    message: "Valor inicial é obrigatório. *",
+  price: z.string().min(1, {
+    message: "preço é obrigatório. *",
   }),
   description: z.string().min(1, {
     message: "Descrição é obrigatório. *",
   }),
 });
 
-export default function ModalEditBalance({
+export default function ModalEditPayment({
   isOpen,
   setIsOpen,
-}: ModalEditBalanceProps) {
-  const { editBalance, balanceForId } = useBalance();
+}: ModalEditPaymentProps) {
+  const { editPayment, paymentForId } = usePayment();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const {
@@ -65,24 +64,23 @@ export default function ModalEditBalance({
 
   async function onSubmit({
     description,
-    initialValue,
+    price,
     name,
   }: z.infer<typeof FormSchema>) {
     setIsLoading(true);
 
-    const initialValueFormat = parseFloat(initialValue.replace(/,/g, "."));
+    const initialValueFormat = parseFloat(price.replace(/,/g, "."));
 
-    if (balanceForId) {
-      const dataBalance: BalanceProps = {
-        ...balanceForId,
-        remainingValue: balanceForId?.remainingValue ?? "",
+    if (paymentForId) {
+      const dataBalance: PaymentProps = {
+        ...paymentForId,
         description,
-        initialValue: parseFloat(initialValueFormat.toFixed(2)),
+        price: parseFloat(initialValueFormat.toFixed(2)),
         name,
       };
 
-      const documentId = balanceForId?.balanceId ?? "";
-      await editBalance(dataBalance, documentId);
+      const documentId = paymentForId?.balanceId ?? "";
+      await editPayment(dataBalance, documentId);
     }
     setIsLoading(false);
     reset();
@@ -90,18 +88,18 @@ export default function ModalEditBalance({
   }
 
   useEffect(() => {
-    if (balanceForId) {
-      setValue("name", balanceForId?.name);
-      setValue("description", balanceForId?.description);
-      setValue("initialValue", balanceForId?.initialValue.toString());
+    if (paymentForId) {
+      setValue("name", paymentForId?.name);
+      setValue("description", paymentForId?.description);
+      setValue("price", paymentForId?.price.toString());
     }
-  }, [balanceForId]);
+  }, [paymentForId]);
 
   useEffect(() => {
-    if (watch("initialValue")) {
-      setValue("initialValue", watch("initialValue").replace(/[^0-9,]/g, ""));
+    if (watch("price")) {
+      setValue("price", watch("price").replace(/[^0-9,]/g, ""));
     }
-  }, [watch("initialValue")]);
+  }, [watch("price")]);
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -111,7 +109,7 @@ export default function ModalEditBalance({
             <DialogTitle>Editar saldo</DialogTitle>
             <DialogDescription>
               Por favor, preencha as informações abaixo para editar saldo{" "}
-              <b>{balanceForId?.name}</b>.
+              <b>{paymentForId?.name}</b>.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -127,13 +125,13 @@ export default function ModalEditBalance({
             </div>
             <div className="relative flex flex-col gap-2">
               <Input
-                {...register("initialValue")}
+                {...register("price")}
                 type="text"
                 placeholder="Valor inicial"
                 pattern="^\d+,\d{1,3}$|^\d+$"
               />
               <p className="text-sm font-medium text-red-600">
-                {errors?.initialValue?.message}
+                {errors?.price?.message}
               </p>
             </div>
             <div className="relative flex flex-col gap-2">
