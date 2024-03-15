@@ -12,10 +12,18 @@ import { LoaderCircleIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TableData } from "@/components/app/table/table";
 import ModalEditBalance from "@/components/app/modal/modal-edit-balance";
+import ModalDeleteBalance from "@/components/app/modal/modal-delete-balance";
 
 export default function Balance() {
-  const { getBalanceByUserId, isLoading, balances, isOpenEdit, setIsOpenEdit } =
-    useBalance();
+  const {
+    getBalanceByUserId,
+    isLoading,
+    balances,
+    isOpenEdit,
+    setIsOpenEdit,
+    isOpenDelete,
+    setIsOpenDelete,
+  } = useBalance();
 
   const [isOpenRegister, setIsOpenRegister] = useState(false);
 
@@ -59,6 +67,8 @@ export default function Balance() {
         setIsOpen={setIsOpenRegister}
       />
       <ModalEditBalance isOpen={isOpenEdit} setIsOpen={setIsOpenEdit} />
+
+      <ModalDeleteBalance isOpen={isOpenDelete} setIsOpen={setIsOpenDelete} />
 
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-normal">Saldos</h1>

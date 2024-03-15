@@ -54,8 +54,12 @@ export function TableData({ items }: TableDataProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {items.map((item) => (
-            <RenderBalance item={item as BalanceProps} key={item.balanceId} />
+          {items.map((item, index) => (
+            <RenderBalance
+              item={item as BalanceProps}
+              key={index}
+              index={index}
+            />
           ))}
         </TableBody>
       </Table>

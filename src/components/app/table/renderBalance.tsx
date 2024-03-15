@@ -16,11 +16,11 @@ import { useBalance } from "@/context/BalanceContext";
 
 interface RenderBalanceProps {
   item: BalanceProps;
-  key: number | string;
+  index: number;
 }
 
-export default function RenderBalance({ item, key }: RenderBalanceProps) {
-  const { setIsOpenEdit, getBalanceById } = useBalance();
+export default function RenderBalance({ item, index }: RenderBalanceProps) {
+  const { setIsOpenEdit, setIsOpenDelete, getBalanceById } = useBalance();
 
   const {
     description,
@@ -28,7 +28,6 @@ export default function RenderBalance({ item, key }: RenderBalanceProps) {
     name,
     remainingValue,
     usedValue,
-    userId,
     balanceId,
   } = item;
 
@@ -41,12 +40,15 @@ export default function RenderBalance({ item, key }: RenderBalanceProps) {
     setIsLoading(false);
   }
 
-  function handleDeleteBalance() {
-    console.log("handleDeleteBalance ", userId);
+  async function handleDeleteBalance() {
+    setIsLoading(true);
+    await getBalanceById(balanceId);
+    setIsOpenDelete(true);
+    setIsLoading(false);
   }
 
   return (
-    <TableRow key={key}>
+    <TableRow key={index}>
       <TableCell className="font-medium">{name}</TableCell>
       <TableCell className="w-[200px]">
         {truncateString(description, 30)}
@@ -55,17 +57,19 @@ export default function RenderBalance({ item, key }: RenderBalanceProps) {
       <TableCell>{formatToBRL(usedValue ? usedValue : 0)}</TableCell>
       <TableCell>{formatToBRL(remainingValue)}</TableCell>
       <TableCell className="flex gap-2 ">
-        <Button type="button" variant="link" onClick={handleDeleteBalance}>
-          <TrashIcon className="h-6 w-6" />
-        </Button>
+        {isLoading ? (
+          <LoaderCircleIcon className="h-6 w-6 animate-spin" />
+        ) : (
+          <>
+            <Button type="button" variant="link" onClick={handleDeleteBalance}>
+              <TrashIcon className="h-6 w-6" />
+            </Button>
 
-        <Button type="button" variant="link" onClick={handleEditBalance}>
-          {isLoading ? (
-            <LoaderCircleIcon className="h-6 w-6 animate-spin" />
-          ) : (
-            <PencilIcon className="h-6 w-6" />
-          )}
-        </Button>
+            <Button type="button" variant="link" onClick={handleEditBalance}>
+              <PencilIcon className="h-6 w-6" />
+            </Button>
+          </>
+        )}
       </TableCell>
     </TableRow>
   );
