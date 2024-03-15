@@ -33,10 +33,8 @@ export function TableData({ items }: TableDataProps) {
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
-  const handleItemsPerPageChange = (
-    e: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    setItemsPerPage(parseInt(e.target.value));
+  const handleItemsPerPageChange = (value: string) => {
+    setItemsPerPage(parseInt(value));
     setCurrentPage(1);
   };
 
@@ -54,12 +52,8 @@ export function TableData({ items }: TableDataProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {items.map((item, index) => (
-            <RenderBalance
-              item={item as BalanceProps}
-              key={index}
-              index={index}
-            />
+          {currentItems.map((item) => (
+            <RenderBalance item={item as BalanceProps} key={item.balanceId} />
           ))}
         </TableBody>
       </Table>
@@ -67,15 +61,15 @@ export function TableData({ items }: TableDataProps) {
       <div className="flex justify-end items-center">
         <div className="flex gap-2 end items-center">
           <p className="text-xs text-zinc-500 font-normal">Rows per page:</p>
-          <Select>
+          <Select onValueChange={(value) => handleItemsPerPageChange(value)}>
             <SelectTrigger className="w-[80px] bg-transparent border-transparent">
-              <SelectValue placeholder="10" />
+              <SelectValue placeholder="5" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="5">10</SelectItem>
+              <SelectItem value="5">5</SelectItem>
+              <SelectItem value="10">10</SelectItem>
               <SelectItem value="20">20</SelectItem>
               <SelectItem value="50">50</SelectItem>
-              <SelectItem value="100">100</SelectItem>
             </SelectContent>
           </Select>
         </div>

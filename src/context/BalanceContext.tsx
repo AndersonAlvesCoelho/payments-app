@@ -132,7 +132,7 @@ function BalanceProvider({ children }: { children: ReactNode }) {
       const balancesCollectionRef = collection(db, "balances");
       await addDoc(balancesCollectionRef, balance);
 
-      setBalances([...balances, balance]);
+      setBalances([balance, ...balances]);
       toast({
         title: "Sucesso: saldo registro .",
         description: "O saldo foi cadastrado com sucesso!",

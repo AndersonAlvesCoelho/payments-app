@@ -16,10 +16,10 @@ import { useBalance } from "@/context/BalanceContext";
 
 interface RenderBalanceProps {
   item: BalanceProps;
-  index: number;
+  key: number;
 }
 
-export default function RenderBalance({ item, index }: RenderBalanceProps) {
+export default function RenderBalance({ item, key }: RenderBalanceProps) {
   const { setIsOpenEdit, setIsOpenDelete, getBalanceById } = useBalance();
 
   const {
@@ -35,20 +35,20 @@ export default function RenderBalance({ item, index }: RenderBalanceProps) {
 
   async function handleEditBalance() {
     setIsLoading(true);
-    await getBalanceById(balanceId);
+    if (balanceId) await getBalanceById(balanceId);
     setIsOpenEdit(true);
     setIsLoading(false);
   }
 
   async function handleDeleteBalance() {
     setIsLoading(true);
-    await getBalanceById(balanceId);
+    if (balanceId) await getBalanceById(balanceId);
     setIsOpenDelete(true);
     setIsLoading(false);
   }
 
   return (
-    <TableRow key={index}>
+    <TableRow key={key}>
       <TableCell className="font-medium">{name}</TableCell>
       <TableCell className="w-[200px]">
         {truncateString(description, 30)}
