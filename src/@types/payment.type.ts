@@ -4,4 +4,5 @@ export interface PaymentProps {
   description: string;
   price: number;
   userId: string;
+  idBalance?: string;
 }

@@ -19,6 +19,8 @@ import { db } from "@/services/firebase";
 // COMPONENTS
 import { toast } from "@/components/ui/use-toast";
 import { PaymentProps } from "@/@types/payment.type";
+import { useBalance } from "./BalanceContext";
+import { BalanceProps } from "@/@types/balance.type";
 
 interface PaymentContextData {
   isLoading: boolean;
@@ -61,6 +63,7 @@ const PaymentContext = createContext<PaymentContextData>({
 });
 
 function PaymentProvider({ children }: { children: ReactNode }) {
+  const { balances, editBalance } = useBalance();
   const userCookie = getUserCookie();
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -85,6 +88,7 @@ function PaymentProvider({ children }: { children: ReactNode }) {
             description: data.description,
             userId: data.userId,
             price: data.price,
+            idBalance: data.idBalance,
           };
 
           return payment;
@@ -163,7 +167,6 @@ function PaymentProvider({ children }: { children: ReactNode }) {
           item.documentId === updatedData.documentId ? { ...updatedData } : item
         )
       );
-
       toast({
         title: "Sucesso: Pagamento autalizado",
         description: "O pagamento foi atualizado com sucesso!",
@@ -171,8 +174,6 @@ function PaymentProvider({ children }: { children: ReactNode }) {
 
       return true;
     } catch (error) {
-      console.error("Erro ao buscar documento: ", error);
-
       toast({
         variant: "destructive",
         title: "Aviso: Erro ao atualizar.",
@@ -187,16 +188,41 @@ function PaymentProvider({ children }: { children: ReactNode }) {
     try {
       const docRef = doc(db, "payments", documentId);
       await deleteDoc(docRef);
-      setPayments((currentBalances) =>
-        currentBalances.filter((payment) => payment.documentId !== documentId)
-      );
-      toast({
-        title: "Sucesso",
-        description: "O pagamento foi excluído com sucesso!",
-      });
 
-      return true;
+      const payment = payments.find((pay) => pay.documentId === documentId);
+
+      const balance = balances.find(
+        (bal) => bal.documentId === payment?.idBalance
+      );
+
+      if (balance && payment) {
+        const updatedBalance: BalanceProps = {
+          ...balance,
+          remainingValue: balance?.remainingValue + payment?.price,
+          usedValue: balance?.usedValue ?? 0 - payment?.price,
+        };
+        const idBalance = balance.documentId ?? "";
+        await editBalance(updatedBalance, idBalance);
+        setPayments((currentBalances) =>
+          currentBalances.filter((payment) => payment.documentId !== documentId)
+        );
+        toast({
+          title: "Sucesso",
+          description: "O pagamento foi excluído com sucesso!",
+        });
+
+        return true;
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Erro ao excluir",
+          description: "Não foi possível excluir o pagamento.",
+        });
+
+        return false;
+      }
     } catch (error) {
+      console.log("error ", error);
       toast({
         variant: "destructive",
         title: "Erro ao excluir",

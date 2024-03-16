@@ -95,12 +95,6 @@ export default function ModalRegisterPayment({
     setIsLoading(true);
 
     const priceFormat = parseFloat(price.replace(/,/g, "."));
-    const payment: PaymentProps = {
-      description,
-      price: parseFloat(priceFormat.toFixed(2)),
-      name,
-      userId: userCookie?.uid ?? "",
-    };
 
     const balanceFind = balances.find(
       (balance) => balance.documentId === documentId
@@ -111,6 +105,14 @@ export default function ModalRegisterPayment({
         ...balanceFind,
         remainingValue: balanceFind.remainingValue - priceFormat,
         usedValue: priceFormat,
+      };
+
+      const payment: PaymentProps = {
+        description,
+        price: parseFloat(priceFormat.toFixed(2)),
+        name,
+        userId: userCookie?.uid ?? "",
+        idBalance: balanceFind.documentId,
       };
 
       await editBalance(balance, documentId);
