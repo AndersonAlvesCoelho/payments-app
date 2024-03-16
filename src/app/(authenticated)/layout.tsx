@@ -21,11 +21,12 @@ export default function AuthenticatedLayout({
   const { getBalanceByUserId } = useBalance();
   const userCookie = getUserCookie();
 
+  console.log("userCookie ", userCookie);
   useEffect(() => {
     if (!userCookie) {
       push("login");
     }
-  }, [push]);
+  }, [push, userCookie]);
 
   useEffect(() => {
     getBalanceByUserId();

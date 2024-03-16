@@ -9,13 +9,16 @@ import {
   doc,
   getDoc,
   getDocs,
+  query,
   updateDoc,
+  where,
 } from "firebase/firestore";
 
 // SERVICES
 import { getUserCookie } from "@/services/session";
 import { BalanceProps } from "@/@types/balance.type";
 import { db } from "@/services/firebase";
+import { usePayment } from "./PaymentContext";
 
 // COMPONENTS
 import { toast } from "@/components/ui/use-toast";
@@ -62,6 +65,7 @@ const BalanceContext = createContext<BalanceContextData>({
 });
 
 function BalanceProvider({ children }: { children: ReactNode }) {
+  const { getPaymentById } = usePayment();
   const userCookie = getUserCookie();
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -191,26 +195,50 @@ function BalanceProvider({ children }: { children: ReactNode }) {
 
   async function deleteBalanceById(documentId: string): Promise<boolean> {
     try {
-      const docRef = doc(db, "balances", documentId);
-      await deleteDoc(docRef);
-      setBalances((currentBalances) =>
-        currentBalances.filter((balance) => balance.documentId !== documentId)
-      );
-      toast({
-        title: "Sucesso",
-        description: "O saldo foi excluído com sucesso!",
-      });
+      const balance = balances.find((bal) => bal.documentId === documentId);
+      const idPayment = balance?.documentId ?? "";
+      const isPayment = await checkIdBalance(idPayment);
 
-      return true;
+      if (!isPayment) {
+        const docRef = doc(db, "balances", documentId);
+        await deleteDoc(docRef);
+
+        setBalances((currentBalances) =>
+          currentBalances.filter((balance) => balance.documentId !== documentId)
+        );
+        toast({
+          title: "Sucesso",
+          description: "O saldo foi excluído com sucesso!",
+        });
+
+        return true;
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Aviso: Não foi possível excluir o saldo ",
+          description:
+            "Esse saldo nao pode ser excluido. No momento ele está em uso.",
+        });
+        return false;
+      }
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Erro ao excluir",
+        title: "Alerta: Erro ao excluir",
         description: "Não foi possível excluir o saldo.",
       });
 
       return false;
     }
+  }
+
+  async function checkIdBalance(idBalance: string): Promise<boolean> {
+    const docRef = collection(db, "payments");
+    const q = query(docRef, where("idBalance", "==", idBalance));
+    const querySnapshot = await getDocs(q);
+    const hasDocuments = !querySnapshot.empty;
+
+    return hasDocuments;
   }
 
   function handleResetStateBalance() {

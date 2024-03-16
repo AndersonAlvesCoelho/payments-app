@@ -10,6 +10,7 @@ import {
   getDoc,
   getDocs,
   updateDoc,
+  where,
 } from "firebase/firestore";
 
 // SERVICES
@@ -186,16 +187,14 @@ function PaymentProvider({ children }: { children: ReactNode }) {
 
   async function deletePaymentById(documentId: string): Promise<boolean> {
     try {
-      const docRef = doc(db, "payments", documentId);
-      await deleteDoc(docRef);
-
       const payment = payments.find((pay) => pay.documentId === documentId);
-
       const balance = balances.find(
         (bal) => bal.documentId === payment?.idBalance
       );
 
       if (balance && payment) {
+        const docRef = doc(db, "payments", documentId);
+        await deleteDoc(docRef);
         const updatedBalance: BalanceProps = {
           ...balance,
           remainingValue: balance?.remainingValue + payment?.price,
