@@ -1,4 +1,4 @@
-# Carbon Calc
+# Pagamentos APP
 
 ![Node](https://img.shields.io/badge/Next.js-000?style=for-the-badge&logo=next.js&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)

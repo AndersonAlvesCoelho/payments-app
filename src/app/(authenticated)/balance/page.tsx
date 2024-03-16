@@ -1,19 +1,19 @@
 "use client";
 
 // IMPORTS
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 // SERVICES
 import { useBalance } from "@/context/BalanceContext";
 
 // COMPONENTS
-import ModalRegisterBalance from "@/components/app/modal/Balance/modal-register";
 import { LoaderCircleIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TableData } from "@/components/app/table/table";
+import { CardData } from "@/components/app/card/cardData";
+import ModalRegisterBalance from "@/components/app/modal/Balance/modal-register";
 import ModalEditBalance from "@/components/app/modal/Balance/modal-edit";
 import ModalDeleteBalance from "@/components/app/modal/Balance/modal-delete";
-import { CardData } from "@/components/app/card/cardData";
 
 export default function Balance() {
   const {
