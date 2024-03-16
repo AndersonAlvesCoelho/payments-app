@@ -70,7 +70,6 @@ export default function ModalRegisterPayment({
 
   const userCookie = getUserCookie();
 
-  console.log("balances ", balances);
   const {
     handleSubmit,
     register,

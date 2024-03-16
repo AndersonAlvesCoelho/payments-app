@@ -39,7 +39,7 @@ export default function NavigationMenu() {
   ];
 
   return (
-    <div className="flex-shrink-0 w-64 bg-zinc-800 text-white">
+    <div className="flex-shrink-0 w-64 bg-zinc-800 text-white hidden md:block">
       <ul className="py-4">
         {items.map(({ href, name, onClick, icon }, index) => (
           <React.Fragment key={index}>

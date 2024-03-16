@@ -48,7 +48,7 @@ export function TableData({ items, type }: TableDataProps) {
   };
 
   return (
-    <div className="w-full flex flex-col gap-2">
+    <div className="w-full md:flex flex-col gap-2 hidden ">
       <Table>
         <TableHeader>
           <TableRow>

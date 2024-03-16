@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { TableData } from "@/components/app/table/table";
 import ModalEditBalance from "@/components/app/modal/Balance/modal-edit";
 import ModalDeleteBalance from "@/components/app/modal/Balance/modal-delete";
+import { CardData } from "@/components/app/card/cardData";
 
 export default function Balance() {
   const {
@@ -56,7 +57,7 @@ export default function Balance() {
   }
 
   return (
-    <main className="p-8 flex flex-col gap-6">
+    <main className="p-8 flex flex-col gap-6 w-full">
       <ModalRegisterBalance
         isOpen={isOpenRegister}
         setIsOpen={setIsOpenRegister}
@@ -77,6 +78,7 @@ export default function Balance() {
       </div>
 
       <TableData items={balances} type="balance" />
+      <CardData items={balances} type="balance" />
     </main>
   );
 }

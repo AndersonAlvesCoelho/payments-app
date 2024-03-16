@@ -14,6 +14,7 @@ import { TableData } from "@/components/app/table/table";
 import ModalRegisterPayment from "@/components/app/modal/Payment/modal-register";
 import ModalEditPayment from "@/components/app/modal/Payment/modal-edit";
 import ModalDeletePayment from "@/components/app/modal/Payment/modal-delete";
+import { CardData } from "@/components/app/card/cardData";
 
 export default function Payment() {
   const {
@@ -63,7 +64,7 @@ export default function Payment() {
   }
 
   return (
-    <main className="p-8 flex flex-col gap-6">
+    <main className="p-8 flex flex-col gap-6 w-full">
       <ModalRegisterPayment
         isOpen={isOpenRegister}
         setIsOpen={setIsOpenRegister}
@@ -84,6 +85,7 @@ export default function Payment() {
       </div>
 
       <TableData items={payments} type="payment" />
+      <CardData items={payments} type="payment" />
     </main>
   );
 }
