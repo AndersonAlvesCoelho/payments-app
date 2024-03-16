@@ -32,6 +32,7 @@ interface PaymentContextData {
   setIsOpenDelete: (value: boolean) => void;
   setIsOpenEdit: (value: boolean) => void;
 
+  handleResetStatePayment: () => void;
   getPaymentByUserId: () => void;
   getPaymentById: (documentId: string) => Promise<boolean>;
   createPayment: (value: PaymentProps) => Promise<boolean>;
@@ -51,6 +52,7 @@ const PaymentContext = createContext<PaymentContextData>({
   setIsOpenDelete: () => {},
   setIsOpenEdit: () => {},
 
+  handleResetStatePayment: () => {},
   getPaymentByUserId: () => {},
   getPaymentById: () => Promise.resolve(false),
   createPayment: () => Promise.resolve(false),
@@ -64,7 +66,7 @@ function PaymentProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isOpenEdit, setIsOpenEdit] = useState<boolean>(false);
   const [isOpenDelete, setIsOpenDelete] = useState<boolean>(false);
-  const [payments, setBalances] = useState<PaymentProps[]>([]);
+  const [payments, setPayments] = useState<PaymentProps[]>([]);
   const [paymentForId, setPaymentForId] = useState<PaymentProps | null>(null);
 
   async function getPaymentByUserId() {
@@ -90,10 +92,10 @@ function PaymentProvider({ children }: { children: ReactNode }) {
         .filter((bal) => bal.userId === userCookie?.uid);
 
       setIsLoading(false);
-      setBalances(formatBalance);
+      setPayments(formatBalance);
     } catch (error) {
       setIsLoading(false);
-      setBalances([]);
+      setPayments([]);
     }
   }
 
@@ -125,9 +127,13 @@ function PaymentProvider({ children }: { children: ReactNode }) {
   async function createPayment(payment: PaymentProps): Promise<boolean> {
     try {
       const balancesCollectionRef = collection(db, "payments");
-      await addDoc(balancesCollectionRef, payment);
+      const docSnap = await addDoc(balancesCollectionRef, payment);
+      const newPayment = {
+        ...payment,
+        documentId: docSnap.id,
+      };
 
-      setBalances([payment, ...payments]);
+      setPayments([newPayment, ...payments]);
       toast({
         title: "Sucesso: pagamento registro .",
         description: "O pagamento foi cadastrado com sucesso!",
@@ -152,7 +158,7 @@ function PaymentProvider({ children }: { children: ReactNode }) {
       const docRef = doc(db, "payments", documentId);
       await updateDoc(docRef, updatedData as { [key: string]: any });
 
-      setBalances((currentBalance) =>
+      setPayments((currentBalance) =>
         currentBalance.map((item) =>
           item.documentId === updatedData.documentId ? { ...updatedData } : item
         )
@@ -181,7 +187,7 @@ function PaymentProvider({ children }: { children: ReactNode }) {
     try {
       const docRef = doc(db, "payments", documentId);
       await deleteDoc(docRef);
-      setBalances((currentBalances) =>
+      setPayments((currentBalances) =>
         currentBalances.filter((payment) => payment.documentId !== documentId)
       );
       toast({
@@ -201,6 +207,11 @@ function PaymentProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  function handleResetStatePayment() {
+    setPayments([]);
+    setPaymentForId(null);
+  }
+
   return (
     <PaymentContext.Provider
       value={{
@@ -215,6 +226,7 @@ function PaymentProvider({ children }: { children: ReactNode }) {
         setIsLoading,
         setIsOpenEdit,
 
+        handleResetStatePayment,
         getPaymentByUserId,
         getPaymentById,
         createPayment,

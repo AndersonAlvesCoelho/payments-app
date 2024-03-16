@@ -26,6 +26,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { EyeIcon, EyeOffIcon, LoaderCircleIcon } from "lucide-react";
 import { useToast } from "../ui/use-toast";
+import { usePayment } from "@/context/PaymentContext";
+import { useBalance } from "@/context/BalanceContext";
 
 const FormSchema = z.object({
   email: z.string().min(1, { message: "E-mail é obrigatório. *" }).email({
@@ -35,6 +37,9 @@ const FormSchema = z.object({
 });
 
 export default function LayoutLogin() {
+  const { handleResetStatePayment } = usePayment();
+  const { handleResetStateBalance } = useBalance();
+
   const {
     handleSubmit,
     register,
@@ -57,6 +62,9 @@ export default function LayoutLogin() {
         email,
         password
       );
+
+      handleResetStatePayment();
+      handleResetStateBalance();
 
       // @ts-ignore
       const { uid, accessToken } = userCredential.user;

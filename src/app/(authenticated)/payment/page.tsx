@@ -5,15 +5,15 @@ import { useEffect, useState } from "react";
 
 // SERVICES
 import { usePayment } from "@/context/PaymentContext";
+import { useBalance } from "@/context/BalanceContext";
 
 // COMPONENTS
 import { LoaderCircleIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { TableData } from "@/components/app/table/table";
 import ModalRegisterPayment from "@/components/app/modal/Payment/modal-register";
-import ModalRegisterBalance from "@/components/app/modal/Balance/modal-register";
 import ModalEditPayment from "@/components/app/modal/Payment/modal-edit";
 import ModalDeletePayment from "@/components/app/modal/Payment/modal-delete";
-import { TableData } from "@/components/app/table/table";
 
 export default function Payment() {
   const {
@@ -26,6 +26,7 @@ export default function Payment() {
     setIsOpenDelete,
   } = usePayment();
 
+  const { getBalanceByUserId } = useBalance();
   const [isOpenRegister, setIsOpenRegister] = useState(false);
 
   useEffect(() => {
@@ -41,7 +42,7 @@ export default function Payment() {
           </div>
         ) : (
           <div className="h-full flex flex-col gap-4 justify-center items-center">
-            <ModalRegisterBalance
+            <ModalRegisterPayment
               isOpen={isOpenRegister}
               setIsOpen={setIsOpenRegister}
             />

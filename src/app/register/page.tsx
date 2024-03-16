@@ -101,7 +101,9 @@ export default function Register() {
           <div className="grid w-full items-center gap-4">
             <div className="relative flex flex-col gap-2">
               <Input {...register("email")} type="text" placeholder="E-mail" />
-              {errors?.email?.message}
+              <p className="text-sm font-medium text-red-600">
+                {errors?.email?.message}
+              </p>
             </div>
             <div className="relative flex flex-col gap-2">
               <Input

@@ -19,13 +19,13 @@ export default function NavigationMenu() {
 
   const items = [
     {
-      name: "Payments",
+      name: "Pagamentos",
       href: "/payment",
       onClick: () => {},
       icon: <CircleDollarSignIcon className="h-6 w-6" />,
     },
     {
-      name: "Balance",
+      name: "Saldos",
       href: "/balance",
       onClick: () => {},
       icon: <WalletIcon className="h-6 w-6" />,

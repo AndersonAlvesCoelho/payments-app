@@ -70,6 +70,7 @@ export default function ModalRegisterPayment({
 
   const userCookie = getUserCookie();
 
+  console.log("balances ", balances);
   const {
     handleSubmit,
     register,
@@ -106,7 +107,7 @@ export default function ModalRegisterPayment({
       (balance) => balance.documentId === documentId
     );
 
-    if (balanceFind && balanceFind.remainingValue > priceFormat) {
+    if (balanceFind && balanceFind.remainingValue >= priceFormat) {
       const balance: BalanceProps = {
         ...balanceFind,
         remainingValue: balanceFind.remainingValue - priceFormat,
@@ -213,7 +214,7 @@ export default function ModalRegisterPayment({
               />
             ) : (
               <p className="text-sm font-medium">
-                No momento não tem saldo cadastro.
+                No momento não tem saldo cadastro.{" "}
                 <Link href="/balance" className=" text-blue-600 underline">
                   Cadastra aqui
                 </Link>

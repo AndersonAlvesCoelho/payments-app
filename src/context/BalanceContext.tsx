@@ -32,6 +32,7 @@ interface BalanceContextData {
   setIsOpenDelete: (value: boolean) => void;
   setIsOpenEdit: (value: boolean) => void;
 
+  handleResetStateBalance: () => void;
   getBalanceByUserId: () => void;
   getBalanceById: (documentId: string) => Promise<boolean>;
   createBalance: (value: BalanceProps) => Promise<boolean>;
@@ -50,6 +51,8 @@ const BalanceContext = createContext<BalanceContextData>({
   setIsLoading: () => {},
   setIsOpenDelete: () => {},
   setIsOpenEdit: () => {},
+
+  handleResetStateBalance: () => {},
 
   getBalanceByUserId: () => {},
   getBalanceById: () => Promise.resolve(false),
@@ -90,7 +93,6 @@ function BalanceProvider({ children }: { children: ReactNode }) {
           return balance;
         })
         .filter((bal) => bal.userId === userCookie?.uid);
-
       setIsLoading(false);
       setBalances(formatBalance);
     } catch (error) {
@@ -116,12 +118,15 @@ function BalanceProvider({ children }: { children: ReactNode }) {
             .replace(".", ","),
         } as BalanceProps;
         setBalanceForId(balance);
+        setIsLoading(false);
         return true;
       } else {
+        setIsLoading(false);
         setBalanceForId(null);
         return false;
       }
     } catch (error) {
+      setIsLoading(false);
       setBalanceForId(null);
       return false;
     }
@@ -130,9 +135,13 @@ function BalanceProvider({ children }: { children: ReactNode }) {
   async function createBalance(balance: BalanceProps): Promise<boolean> {
     try {
       const balancesCollectionRef = collection(db, "balances");
-      await addDoc(balancesCollectionRef, balance);
+      const docSnap = await addDoc(balancesCollectionRef, balance);
+      const newBalance = {
+        ...balance,
+        documentId: docSnap.id,
+      };
 
-      setBalances([balance, ...balances]);
+      setBalances([newBalance, ...balances]);
       toast({
         title: "Sucesso: saldo registro .",
         description: "O saldo foi cadastrado com sucesso!",
@@ -204,6 +213,11 @@ function BalanceProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  function handleResetStateBalance() {
+    setBalances([]);
+    setBalanceForId(null);
+  }
+
   return (
     <BalanceContext.Provider
       value={{
@@ -218,6 +232,7 @@ function BalanceProvider({ children }: { children: ReactNode }) {
         setIsLoading,
         setIsOpenEdit,
 
+        handleResetStateBalance,
         getBalanceByUserId,
         getBalanceById,
         createBalance,
